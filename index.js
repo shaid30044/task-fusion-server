@@ -6,7 +6,11 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: [
+    "http://localhost:5173",
+    "https://task-fusion-ba7f0.web.app",
+    "https://task-fusion-ba7f0.firebaseapp.com",
+  ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   optionsSuccessStatus: 204,
@@ -28,6 +32,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const userCollection = client.db("taskDB").collection("users");
+    const toDoCollection = client.db("taskDB").collection("toDo");
 
     //   user apis
 
@@ -46,6 +51,26 @@ async function run() {
       }
 
       const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // toDo apis
+
+    app.get("/toDo", verifyToken, verifyAdmin, async (req, res) => {
+      const result = await toDoCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/toDo", async (req, res) => {
+      const toDoItem = req.body;
+      const result = await toDoCollection.insertOne(toDoItem);
+      res.send(result);
+    });
+
+    app.delete("/toDo/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await toDoCollection.deleteOne(query);
       res.send(result);
     });
 
