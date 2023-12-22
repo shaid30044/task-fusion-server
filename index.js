@@ -33,6 +33,8 @@ async function run() {
   try {
     const userCollection = client.db("taskDB").collection("users");
     const toDoCollection = client.db("taskDB").collection("toDo");
+    const onGoingCollection = client.db("taskDB").collection("onGoing");
+    const completeCollection = client.db("taskDB").collection("complete");
 
     //   user apis
 
@@ -71,6 +73,46 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await toDoCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // onGoing apis
+
+    app.get("/onGoing", verifyToken, verifyAdmin, async (req, res) => {
+      const result = await onGoingCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/onGoing", async (req, res) => {
+      const onGoingItem = req.body;
+      const result = await onGoingCollection.insertOne(onGoingItem);
+      res.send(result);
+    });
+
+    app.delete("/onGoing/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await onGoingCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // complete apis
+
+    app.get("/complete", verifyToken, verifyAdmin, async (req, res) => {
+      const result = await completeCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/complete", async (req, res) => {
+      const completeItem = req.body;
+      const result = await completeCollection.insertOne(completeItem);
+      res.send(result);
+    });
+
+    app.delete("/complete/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await completeCollection.deleteOne(query);
       res.send(result);
     });
 
